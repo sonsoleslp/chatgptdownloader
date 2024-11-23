@@ -127,11 +127,11 @@ server <- function(input, output, session) {
       avg_response_length = chatgpt_data |>
         filter(message.author.role == "assistant") |>
         mutate(msg_length = nchar(message.content.parts)) |>
-        summarize(avg = mean(msg_length)) |> pull(avg),
+        dplyr::summarize(avg = mean(msg_length)) |> pull(avg),
       avg_interaction_length = chatgpt_data |>
         filter(message.author.role == "user" | message.author.role == "tool"  ) |>
         mutate(msg_length = nchar(message.content.parts)) |>
-        summarize(avg = mean(msg_length)) |> pull(avg)
+        dplyr::summarize(avg = mean(msg_length)) |> pull(avg)
     )
   })
   

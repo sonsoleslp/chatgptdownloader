@@ -2,6 +2,14 @@
 ui <- fluidPage(theme = shinytheme("lumen"),
           tags$head(
             tags$title("chatGPTscrapeR"),
+            tags$script(HTML("$(function () { 
+                    $('[data-toggle=\"popover\"]').popover({ trigger: 'focus', html: true });
+                    $('.info-icon').on('click',function(e){
+                      e.preventDefault();
+                      e.stopPropagation();
+                    })
+                    $('[data-toggle=\"tooltip\"]').tooltip(); })")),
+            
             tags$link(rel="icon", href="favicon.png"),
             tags$link(rel="shortcut icon", href="favicon.png")
           ),
@@ -53,15 +61,29 @@ ui <- fluidPage(theme = shinytheme("lumen"),
   ")),
           titlePanel(
             div(
-              img(src = "favicon.png", height = "30px", style = "margin-right: 10px;vertical-align:sub;"),
-              "chatGPTscrapeR"
+              img(src = "favicon.png", height = "30px", 
+                  style = "margin-right: 10px;vertical-align:sub;"),
+              "chatGPTscrapeR",
+              tags$a(href="https://github.com/sonsoleslp/chatgptdownloader", 
+                     style = "float:right;",
+                     icon("github"))
             )
           ),
           tabsetPanel(id = "tabs",
                       tabPanel("Data View", 
                                sidebarLayout(
                                  sidebarPanel(
-                                   fileInput("file", "Upload a file", accept = c(".csv",".xlsx",".xls",".tsv",".RDS",".sav",".psv",".feather",".parquet")),
+                                   fileInput("file", 
+                                             tags$div("Upload a file",
+                                                      tags$span(
+                                                        class = "info-icon",
+                                                        style = "margin-left: 10px; font-size: 20px; color: #007BFF; cursor: pointer;",
+                                                        `data-toggle` = "popover",
+                                                        `data-placement` = "right",
+                                                        `data-content` = "Upload a CSV or Excel file. Download an example file by clicking <a href='./df.csv' download='chatgptexample.csv'>here</a>.",
+                                                        `tabindex` = "0", # Ensures focus can be set on the element
+                                                        HTML("&#9432;") # Unicode for "ℹ️"
+                                                      )), accept = c(".csv",".xlsx",".xls",".tsv",".RDS",".sav",".psv",".feather",".parquet")),
                                    uiOutput("columnSelectors"),
                                    uiOutput("urlSelect"),
                                    bsButton("nextButton", label = "Next", style = "info"), 
@@ -122,7 +144,10 @@ ui <- fluidPage(theme = shinytheme("lumen"),
                                  column(4, div(girafeOutput("plot2"))),
                                  column(4, div(girafeOutput("plot3")))
                                  
-                               )#,fluidRow(column(6, div(wordcloud2Output("wordcloudUser"))),column(6, div(wordcloud2Output("wordcloudGPT"))))
+                               )#,
+                               # fluidRow(column(6, div(wordcloud2Output("wordcloudUser"))),
+                               #          column(6, div(wordcloud2Output("wordcloudGPT")))
+                               #          )
                                
                           )
                       

@@ -99,13 +99,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$select_all_button, {
-    if (input$select_all_button %% 2 == 1) {
       updateCheckboxGroupInput(session, "convoColumnSelectors",
                                selected = names(dataConvo()))
-    } else {
-      updateCheckboxGroupInput(session, "convoColumnSelectors",
-                               selected = NULL)
-    }
   })  
   
   output$warning_note <- renderText({
@@ -120,19 +115,27 @@ server <- function(input, output, session) {
   # Reactive data summary
   stats_summary <- reactive({
     chatgpt_data <- dataConvo()
-    
-    result <- list(
-      n_conv = nrow(distinct(chatgpt_data, conversationId)),
-      num_interactions = nrow(chatgpt_data),
-      avg_response_length = chatgpt_data |>
-        filter(message.author.role == "assistant") |>
-        mutate(msg_length = nchar(message.content.parts)) |>
-        dplyr::summarize(avg = mean(msg_length)) |> pull(avg),
-      avg_interaction_length = chatgpt_data |>
-        filter(message.author.role == "user" | message.author.role == "tool"  ) |>
-        mutate(msg_length = nchar(message.content.parts)) |>
-        dplyr::summarize(avg = mean(msg_length)) |> pull(avg)
-    )
+    if(is.null(chatgpt_data)){
+      result <- list(
+        n_conv = 0,
+        num_interactions = 0,
+        avg_response_length = 0,
+        avg_interaction_length = 0
+      )
+    } else {
+      result <- list(
+        n_conv = nrow(distinct(chatgpt_data, conversationId)),
+        num_interactions = nrow(chatgpt_data),
+        avg_response_length = chatgpt_data |>
+          filter(message.author.role == "assistant") |>
+          mutate(msg_length = nchar(message.content.parts)) |>
+          dplyr::summarize(avg = mean(msg_length)) |> pull(avg),
+        avg_interaction_length = chatgpt_data |>
+          filter(message.author.role == "user" | message.author.role == "tool"  ) |>
+          mutate(msg_length = nchar(message.content.parts)) |>
+          dplyr::summarize(avg = mean(msg_length)) |> pull(avg)
+      )
+    }
   })
   
   # Output for total interactions
@@ -157,6 +160,8 @@ server <- function(input, output, session) {
   
   
   output$plot1 <- renderGirafe({
+    if(is.null(dataConvo())){return (NULL);}
+    
     df <- dataConvo() |> 
       filter(message.author.role == "user" | message.author.role == "tool") |>
       mutate(msg_length = nchar(message.content.parts))
@@ -169,6 +174,8 @@ server <- function(input, output, session) {
   })
   
   output$plot2 <- renderGirafe({
+    if(is.null(dataConvo())){return (NULL);}
+    
     df <- dataConvo() |> 
       filter(message.author.role == "assistant") |>
       mutate(msg_length = nchar(message.content.parts))
@@ -181,6 +188,7 @@ server <- function(input, output, session) {
   })
   
   output$plot3 <- renderGirafe({
+    if(is.null(dataConvo())){return (NULL);}
     df <- dataConvo() |> 
       group_by(conversationId) |> count()
     
@@ -194,6 +202,7 @@ server <- function(input, output, session) {
   
   
   output$wordcloudGPT <- renderWordcloud2({
+    if(is.null(dataConvo())){return (NULL);}
     df <- dataConvo()
     req(df)
     text_data <- df |>
@@ -206,6 +215,7 @@ server <- function(input, output, session) {
   })
   
   output$wordcloudUser <- renderWordcloud2({
+    if(is.null(dataConvo())){return (NULL);}
     df <- dataConvo()
     req(df)
     text_data <- df |>

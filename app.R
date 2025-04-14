@@ -12,6 +12,7 @@ library(tidytext)
 library(sentimentr)
 library(wordcloud2)
 library(networkD3)
+library(chromote)
 source("ui.R")
 source("helpers.R")
 

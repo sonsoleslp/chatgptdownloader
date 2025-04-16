@@ -1,6 +1,5 @@
 # Download ChatGPT conversations
 
-Demo in: https://sonsoleslp.shinyapps.io/chatgptscraper/
 
 Based on https://github.com/sonsoleslp/chatgptscrapeR/ 
 
